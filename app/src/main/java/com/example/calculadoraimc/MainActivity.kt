@@ -13,6 +13,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,21 +28,63 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             MaterialTheme {
-                PantallaIngreso()
+                CalculadoraIMC()
             }
         }
     }
 }
 
 @Composable
-fun PantallaIngreso() {
+fun CalculadoraIMC() {
+
+    val navController = rememberNavController()
+
+    NavHost(
+        navController = navController,
+        startDestination = "inicio"
+    ) {
+
+        composable("inicio") {
+            PantallaInicio(navController)
+        }
+
+        composable(
+            route = "resultado/{nombre}/{imc}",
+            arguments = listOf(
+                navArgument("nombre") {
+                    type = NavType.StringType
+                },
+                navArgument("imc") {
+                    type = NavType.FloatType
+                }
+            )
+        ) { backStackEntry ->
+
+            val nombre =
+                backStackEntry.arguments?.getString("nombre") ?: ""
+
+            val imc =
+                backStackEntry.arguments?.getFloat("imc") ?: 0f
+
+            PantallaResultado(
+                nombre = nombre,
+                imc = imc,
+                navController = navController
+            )
+        }
+    }
+}
+
+@Composable
+fun PantallaInicio(
+    navController: NavHostController
+) {
 
     var nombre by remember { mutableStateOf("") }
     var peso by remember { mutableStateOf("") }
     var altura by remember { mutableStateOf("") }
 
     var error by remember { mutableStateOf(false) }
-    var resultado by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -90,9 +140,9 @@ fun PantallaIngreso() {
                 text = "Por favor, ingresa valores válidos",
                 color = Color.Red
             )
-
-            Spacer(modifier = Modifier.height(10.dp))
         }
+
+        Spacer(modifier = Modifier.height(10.dp))
 
         Button(
             onClick = {
@@ -107,7 +157,6 @@ fun PantallaIngreso() {
                     alturaNumero <= 0
                 ) {
                     error = true
-                    resultado = ""
                 } else {
 
                     error = false
@@ -115,19 +164,59 @@ fun PantallaIngreso() {
                     val imc =
                         pesoNumero / (alturaNumero * alturaNumero)
 
-                    resultado =
-                        String.format("IMC: %.2f", imc)
+                    val nombreCodificado =
+                        URLEncoder.encode(
+                            nombre,
+                            StandardCharsets.UTF_8.toString()
+                        )
+
+                    navController.navigate(
+                        "resultado/$nombreCodificado/$imc"
+                    )
                 }
             }
         ) {
             Text("Calcular")
         }
+    }
+}
+
+@Composable
+fun PantallaResultado(
+    nombre: String,
+    imc: Float,
+    navController: NavHostController
+) {
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(20.dp),
+
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+
+        Text(
+            text = "Hola $nombre, tu resultado es:",
+            fontSize = 24.sp
+        )
 
         Spacer(modifier = Modifier.height(20.dp))
 
         Text(
-            text = resultado,
-            fontSize = 24.sp
+            text = String.format("IMC: %.2f", imc),
+            fontSize = 30.sp
         )
+
+        Spacer(modifier = Modifier.height(25.dp))
+
+        Button(
+            onClick = {
+                navController.popBackStack()
+            }
+        ) {
+            Text("Volver")
+        }
     }
 }
