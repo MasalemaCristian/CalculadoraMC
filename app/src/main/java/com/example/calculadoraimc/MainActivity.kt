@@ -9,6 +9,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -31,6 +32,8 @@ fun PantallaIngreso() {
     var nombre by remember { mutableStateOf("") }
     var peso by remember { mutableStateOf("") }
     var altura by remember { mutableStateOf("") }
+
+    var error by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -79,10 +82,29 @@ fun PantallaIngreso() {
             modifier = Modifier.fillMaxWidth()
         )
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(15.dp))
+
+        if (error) {
+            Text(
+                text = "Por favor, ingresa valores válidos",
+                color = Color.Red
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
+        }
 
         Button(
-            onClick = { }
+            onClick = {
+
+                val pesoNumero = peso.toFloatOrNull()
+                val alturaNumero = altura.toFloatOrNull()
+
+                error =
+                    pesoNumero == null ||
+                            alturaNumero == null ||
+                            pesoNumero <= 0 ||
+                            alturaNumero <= 0
+            }
         ) {
             Text("Calcular")
         }
