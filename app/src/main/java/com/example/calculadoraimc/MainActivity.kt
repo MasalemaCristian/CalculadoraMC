@@ -34,6 +34,7 @@ fun PantallaIngreso() {
     var altura by remember { mutableStateOf("") }
 
     var error by remember { mutableStateOf(false) }
+    var resultado by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -99,14 +100,34 @@ fun PantallaIngreso() {
                 val pesoNumero = peso.toFloatOrNull()
                 val alturaNumero = altura.toFloatOrNull()
 
-                error =
+                if (
                     pesoNumero == null ||
-                            alturaNumero == null ||
-                            pesoNumero <= 0 ||
-                            alturaNumero <= 0
+                    alturaNumero == null ||
+                    pesoNumero <= 0 ||
+                    alturaNumero <= 0
+                ) {
+                    error = true
+                    resultado = ""
+                } else {
+
+                    error = false
+
+                    val imc =
+                        pesoNumero / (alturaNumero * alturaNumero)
+
+                    resultado =
+                        String.format("IMC: %.2f", imc)
+                }
             }
         ) {
             Text("Calcular")
         }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        Text(
+            text = resultado,
+            fontSize = 24.sp
+        )
     }
 }
