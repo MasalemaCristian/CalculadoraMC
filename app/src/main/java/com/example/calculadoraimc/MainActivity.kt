@@ -4,16 +4,18 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -76,9 +78,7 @@ fun CalculadoraIMC() {
 }
 
 @Composable
-fun PantallaInicio(
-    navController: NavHostController
-) {
+fun PantallaInicio(navController: androidx.navigation.NavHostController) {
 
     var nombre by remember { mutableStateOf("") }
     var peso by remember { mutableStateOf("") }
@@ -104,8 +104,12 @@ fun PantallaInicio(
 
         OutlinedTextField(
             value = nombre,
-            onValueChange = { nombre = it },
-            label = { Text("Nombre") },
+            onValueChange = {
+                nombre = it
+            },
+            label = {
+                Text("Nombre")
+            },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -113,8 +117,12 @@ fun PantallaInicio(
 
         OutlinedTextField(
             value = peso,
-            onValueChange = { peso = it },
-            label = { Text("Peso (kg)") },
+            onValueChange = {
+                peso = it
+            },
+            label = {
+                Text("Peso (kg)")
+            },
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Decimal
             ),
@@ -125,8 +133,12 @@ fun PantallaInicio(
 
         OutlinedTextField(
             value = altura,
-            onValueChange = { altura = it },
-            label = { Text("Altura (m)") },
+            onValueChange = {
+                altura = it
+            },
+            label = {
+                Text("Altura (m)")
+            },
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Decimal
             ),
@@ -140,9 +152,9 @@ fun PantallaInicio(
                 text = "Por favor, ingresa valores válidos",
                 color = Color.Red
             )
-        }
 
-        Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(10.dp))
+        }
 
         Button(
             onClick = {
@@ -185,8 +197,33 @@ fun PantallaInicio(
 fun PantallaResultado(
     nombre: String,
     imc: Float,
-    navController: NavHostController
+    navController: androidx.navigation.NavHostController
 ) {
+
+    val categoria: String
+    val colorCategoria: Color
+
+    when {
+        imc < 18.5f -> {
+            categoria = "Bajo peso"
+            colorCategoria = Color.Red
+        }
+
+        imc < 25f -> {
+            categoria = "Peso normal"
+            colorCategoria = Color.Green
+        }
+
+        imc < 30f -> {
+            categoria = "Sobrepeso"
+            colorCategoria = Color(0xFFFF9800)
+        }
+
+        else -> {
+            categoria = "Obesidad"
+            colorCategoria = Color.Red
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -209,7 +246,15 @@ fun PantallaResultado(
             fontSize = 30.sp
         )
 
-        Spacer(modifier = Modifier.height(25.dp))
+        Spacer(modifier = Modifier.height(20.dp))
+
+        Text(
+            text = categoria,
+            color = colorCategoria,
+            fontSize = 26.sp
+        )
+
+        Spacer(modifier = Modifier.height(30.dp))
 
         Button(
             onClick = {
